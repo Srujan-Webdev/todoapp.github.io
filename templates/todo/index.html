@@ -1,0 +1,110 @@
+{% extends 'partials/base.html' %}
+
+{% block title %} Todo App {% endblock %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<h1 class="text-warning text-center"> Hello <strong> {{ request.user }} </strong> !!!!! </h1>
+
+<div class="border p-3">
+  <!-- <h3 style="background-color:powderblue;"> Create Any Task: </h3> -->
+  <h3 class="text-primary"> Create Any Task: </h3>
+    <form method="POST">
+        {% csrf_token %}
+        <!-- <input type="text" placeholder="Add new task"><br> -->
+        {{form | crispy}}
+        <input class="btn btn-success" type="submit" value="submit">
+
+    </form>
+
+    <hr>
+    <h3 class="text-primary"> All Tasks: </h3>
+
+    <!-- Reframed below 2 steps for pagination which will be done after these steps-->
+    <!-- {% for todo_item in todo_items %} -->
+    <!-- {% endfor %} -->
+    {% for todo_item in todo_page.object_list %}
+
+    <div class="border p-2 m-4">
+        <small> <b>Created: </b> {{todo_item.date}} </small>
+        <div class="row">
+            <div class="col-md-9">
+                
+                
+                {% if todo_item.completed == True %}
+                <p><span class="btn btn-success btn-sm"><i class="far fa-check-circle"></i></span><b>Task: </b>{{todo_item.content}}</p>
+                <b>Deadline: </b>{{todo_item.time_tobe_completed}}
+                
+                {% else %}
+                <p><b>Task: </b>{{todo_item.content}}</p>
+                <b>Deadline: </b>{{todo_item.time_tobe_completed}}
+                {% endif %}
+
+            </div>
+            <div class="col-md-3">
+                <a class="btn btn-info btn-sm" href="{% url 'update' todo_item.id %}">Edit</a>
+                <a class="btn btn-danger btn-sm" href="{% url 'delete' todo_item.id %}">Delete</a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+<!--Pagination Starts-->
+<div class="container">
+
+    <div class="row m-4">
+
+        <div class="col-md-4 offset-md-3">
+
+            <p>Page:{{todo_page.number}}/{{todo_page.paginator.num_pages}} </p>
+
+            <nav aria-label="...">
+                <ul class="pagination">
+                  <li class="page-item">
+                    {% if todo_page.has_previous %}
+                    <a class="page-link" href="{% url 'index' %}?page={{todo_page.previous_page_number}}">Previous</a>
+                    {% endif %}
+                  </li>
+                  
+                  {% for num_page in todo_page.paginator.page_range %}
+                  
+                  {% if num_page == todo_page.number %}
+                  
+                  <li class="page-item active" aria-current="page">
+                    <a class="page-link" href="{% url 'index' %}?page={{ num_page }}">{{ num_page }}</a>
+                  </li>
+                  
+                  {% else %}
+                  
+                  <li class="page-item" aria-current="page">
+                    <a class="page-link" href="{% url 'index' %}?page={{ num_page }}">{{ num_page }}</a>
+                  </li>
+                  
+                  {% endif %}
+
+                  {% endfor %}
+
+                  <li class="page-item">
+                    {% if todo_page.has_next %}
+                    <a class="page-link" href="{% url 'index' %}?page={{todo_page.next_page_number}}">Next</a>
+                    {% endif %}
+                  </li>
+                </ul>
+              </nav>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!--Pagination Ends-->
+
+{% endblock %}
